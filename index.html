@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Attendance System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">QR Code Attendance System</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Scan Your QR Code</h5>
+                        <div id="qr-scanner" class="mb-3"></div>
+                        <p id="scan-result" class="text-center"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Scanner Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.4.2/qr-scanner.min.js"></script>
+    <script>
+        const qrScanner = new QrScanner(
+            document.getElementById('qr-scanner'),
+            result => {
+                // Display the scanned result
+                document.getElementById('scan-result').innerText = `Scanned: ${result}`;
+
+                // Send the scanned result to the backend
+                fetch('record_attendance.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ employee_id: result }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        alert("Attendance recorded successfully!");
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            },
+            {
+                highlightScanRegion: true,
+                highlightCodeOutline: true,
+            }
+        );
+
+        // Start the scanner
+        qrScanner.start();
+    </script>
+</body>
+</html>
